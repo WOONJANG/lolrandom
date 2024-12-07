@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>롤 챔피언 랜덤 뽑기</title>
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 20px;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  .buttons {
+    margin-bottom: 20px;
+  }
+  button {
+    margin: 5px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .result {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+<h1>롤 챔피언 랜덤 뽑기</h1>
+<div class="buttons">
+  <button id="random-all">전체 랜덤 뽑기</button>
+  <button id="random-top">탑 랜덤</button>
+  <button id="random-jungle">정글 랜덤</button>
+  <button id="random-mid">미드 랜덤</button>
+  <button id="random-adc">원딜 랜덤</button>
+  <button id="random-support">서폿 랜덤</button>
+</div>
+<div class="result" id="result"></div>
+
+<script>
+// 역할군별 챔피언 리스트
+const topChampions = [
+  {en:"garen", kr:"가렌"}, {en:"galio", kr:"갈리오"}, {en:"gangplank", kr:"갱플랭크"},
+  {en:"gragas", kr:"그라가스"}, {en:"gwen", kr:"그웬"}, {en:"gnar", kr:"나르"},
+  {en:"nasus", kr:"나서스"}, {en:"darius", kr:"다리우스"}, {en:"ryze", kr:"라이즈"},
+  {en:"rumble", kr:"럼블"}, {en:"renekton", kr:"레넥톤"}, {en:"riven", kr:"리븐"},
+  {en:"maokai", kr:"마오카이"}, {en:"malphite", kr:"말파이트"}, {en:"mordekaiser", kr:"모데카이저"},
+  {en:"drmundo", kr:"문도 박사"}, {en:"vayne", kr:"베인"}, {en:"volibear", kr:"볼리베어"},
+  {en:"vladimir", kr:"블라디미르"}, {en:"poppy", kr:"뽀삐"}, {en:"sion", kr:"사이온"},
+  {en:"sylas", kr:"사일러스"}, {en:"sett", kr:"세트"}, {en:"shen", kr:"쉔"},
+  {en:"smolder", kr:"스몰더"}, {en:"swain", kr:"스웨인"}, {en:"singed", kr:"신지드"},
+  {en:"akali", kr:"아칼리"}, {en:"aatrox", kr:"아트록스"}, {en:"ambessa", kr:"암베사"},
+  {en:"yasuo", kr:"야스오"}, {en:"monkeyking", kr:"오공"}, {en:"aurora", kr:"오로라"},
+  {en:"ornn", kr:"오른"}, {en:"olaf", kr:"올라프"}, {en:"yone", kr:"요네"},
+  {en:"yorick", kr:"요릭"}, {en:"udyr", kr:"우디르"}, {en:"urgot", kr:"우르곳"},
+  {en:"warwick", kr:"워윅"}, {en:"irelia", kr:"이렐리아"}, {en:"illaoi", kr:"일라오이"},
+  {en:"zac", kr:"자크"}, {en:"jax", kr:"잭스"}, {en:"jayce", kr:"제이스"},
+  {en:"chogath", kr:"초가스"}, {en:"camille", kr:"카밀"}, {en:"cassiopeia", kr:"카시오페아"},
+  {en:"kennen", kr:"케넨"}, {en:"kayle", kr:"케일"}, {en:"quinn", kr:"퀸"},
+  {en:"ksante", kr:"크산테"}, {en:"kled", kr:"클레드"}, {en:"tahmkench", kr:"탐 켄치"},
+  {en:"trundle", kr:"트런들"}, {en:"tryndamere", kr:"트린다미어"}, {en:"teemo", kr:"티모"},
+  {en:"pantheon", kr:"판테온"}, {en:"fiora", kr:"피오라"}, {en:"heimerdinger", kr:"하이머딩거"}
+];
+
+const jungleChampions = [
+  {en:"gragas", kr:"그라가스"}, {en:"graves", kr:"그레이브즈"}, {en:"gwen", kr:"그웬"},
+  {en:"nocturne", kr:"녹턴"}, {en:"nunu", kr:"누누와 윌럼프"}, {en:"nidalee", kr:"니달리"},
+  {en:"diana", kr:"다이애나"}, {en:"rammus", kr:"람머스"}, {en:"reksai", kr:"렉사이"},
+  {en:"rengar", kr:"렝가"}, {en:"leesin", kr:"리 신"}, {en:"lillia", kr:"릴리아"},
+  {en:"masteryi", kr:"마스터 이"}, {en:"drmundo", kr:"문도 박사"}, {en:"vi", kr:"바이"},
+  {en:"belveth", kr:"벨베스"}, {en:"volibear", kr:"볼리베어"}, {en:"briar", kr:"브라이어"},
+  {en:"viego", kr:"비에고"}, {en:"poppy", kr:"뽀삐"}, {en:"shaco", kr:"샤코"},
+  {en:"sejuani", kr:"세주아니"}, {en:"shyvana", kr:"쉬바나"}, {en:"skarner", kr:"스카너"},
+  {en:"xinzhao", kr:"신 짜오"}, {en:"amumu", kr:"아무무"}, {en:"ivern", kr:"아이번"},
+  {en:"ambessa", kr:"암베사"}, {en:"ekko", kr:"에코"}, {en:"elise", kr:"엘리스"},
+  {en:"monkeyking", kr:"오공"}, {en:"udyr", kr:"우디르"}, {en:"warwick", kr:"워윅"},
+  {en:"evelynn", kr:"이블린"}, {en:"jarvaniv", kr:"자르반 4세"}, {en:"zyra", kr:"자이라"},
+  {en:"zac", kr:"자크"}, {en:"jax", kr:"잭스"}, {en:"zed", kr:"제드"},
+  {en:"karthus", kr:"카서스"}, {en:"khazix", kr:"카직스"}, {en:"kayn", kr:"케인"},
+  {en:"qiyana", kr:"키아나"}, {en:"kindred", kr:"킨드레드"}, {en:"talon", kr:"탈론"},
+  {en:"taliyah", kr:"탈리야"}, {en:"teemo", kr:"티모"}, {en:"pantheon", kr:"판테온"},
+  {en:"fiddlesticks", kr:"피들스틱"}, {en:"hecarim", kr:"헤카림"}
+];
+
+const midChampions = [
+  {en:"galio", kr:"갈리오"}, {en:"gragas", kr:"그라가스"}, {en:"naafiri", kr:"나피리"},
+  {en:"neeko", kr:"니코"}, {en:"diana", kr:"다이애나"}, {en:"ryze", kr:"라이즈"},
+  {en:"lux", kr:"럭스"}, {en:"renekton", kr:"레넥톤"}, {en:"leblanc", kr:"르블랑"},
+  {en:"lissandra", kr:"리산드라"}, {en:"malzahar", kr:"말자하"}, {en:"malphite", kr:"말파이트"},
+  {en:"veigar", kr:"베이가"}, {en:"vex", kr:"벡스"}, {en:"velkoz", kr:"벨코즈"},
+  {en:"brand", kr:"브랜드"}, {en:"vladimir", kr:"블라디미르"}, {en:"viktor", kr:"빅토르"},
+  {en:"sylas", kr:"사일러스"}, {en:"smolder", kr:"스몰더"}, {en:"swain", kr:"스웨인"},
+  {en:"syndra", kr:"신드라"}, {en:"ahri", kr:"아리"}, {en:"aurelionsol", kr:"아우렐리온 솔"},
+  {en:"azir", kr:"아지르"}, {en:"akali", kr:"아칼리"}, {en:"akshan", kr:"아크샨"},
+  {en:"ambessa", kr:"암베사"}, {en:"annie", kr:"애니"}, {en:"anivia", kr:"애니비아"},
+  {en:"yasuo", kr:"야스오"}, {en:"ekko", kr:"에코"}, {en:"aurora", kr:"오로라"},
+  {en:"orianna", kr:"오리아나"}, {en:"yone", kr:"요네"}, {en:"irelia", kr:"이렐리아"},
+  {en:"zed", kr:"제드"}, {en:"xerath", kr:"제라스"}, {en:"jayce", kr:"제이스"},
+  {en:"zoe", kr:"조이"}, {en:"ziggs", kr:"직스"}, {en:"chogath", kr:"초가스"},
+  {en:"kassadin", kr:"카사딘"}, {en:"cassiopeia", kr:"카시오페아"}, {en:"katarina", kr:"카타리나"},
+  {en:"kennen", kr:"케넨"}, {en:"kayle", kr:"케일"}, {en:"corki", kr:"코르키"},
+  {en:"qiyana", kr:"키아나"}, {en:"talon", kr:"탈론"}, {en:"taliyah", kr:"탈리야"},
+  {en:"tristana", kr:"트리스타나"}, {en:"twistedfate", kr:"트위스티드 페이트"},
+  {en:"pantheon", kr:"판테온"}, {en:"fizz", kr:"피즈"}, {en:"hwei", kr:"흐웨이"}
+];
+
+const adcChampions = [
+  {en:"nilah", kr:"닐라"}, {en:"draven", kr:"드레이븐"}, {en:"lucian", kr:"루시안"},
+  {en:"missfortune", kr:"미스 포츈"}, {en:"varus", kr:"바루스"}, {en:"veigar", kr:"베이가"},
+  {en:"vayne", kr:"베인"}, {en:"brand", kr:"브랜드"}, {en:"samira", kr:"사미라"},
+  {en:"seraphine", kr:"세라핀"}, {en:"smolder", kr:"스몰더"}, {en:"swain", kr:"스웨인"},
+  {en:"sivir", kr:"시비르"}, {en:"aphelios", kr:"아펠리오스"}, {en:"ashe", kr:"애쉬"},
+  {en:"yasuo", kr:"야스오"}, {en:"ezreal", kr:"이즈리얼"}, {en:"xayah", kr:"자야"},
+  {en:"zeri", kr:"제리"}, {en:"ziggs", kr:"직스"}, {en:"jhin", kr:"진"},
+  {en:"jinx", kr:"징크스"}, {en:"karthus", kr:"카서스"}, {en:"kaisa", kr:"카이사"},
+  {en:"kalista", kr:"칼리스타"}, {en:"caitlyn", kr:"케이틀린"}, {en:"kogmaw", kr:"코그모"},
+  {en:"corki", kr:"코르키"}, {en:"tristana", kr:"트리스타나"}, {en:"twitch", kr:"트위치"},
+  {en:"hwei", kr:"흐웨이"}
+];
+
+const supportChampions = [
+  {en:"galio", kr:"갈리오"}, {en:"nami", kr:"나미"}, {en:"nautilus", kr:"노틸러스"},
+  {en:"neeko", kr:"니코"}, {en:"rakan", kr:"라칸"}, {en:"lux", kr:"럭스"},
+  {en:"renata", kr:"레나타 글라스크"}, {en:"leona", kr:"레오나"}, {en:"rell", kr:"렐"},
+  {en:"lulu", kr:"룰루"}, {en:"leblanc", kr:"르블랑"}, {en:"maokai", kr:"마오카이"},
+  {en:"morgana", kr:"모르가나"}, {en:"milio", kr:"밀리오"}, {en:"bard", kr:"바드"},
+  {en:"velkoz", kr:"벨코즈"}, {en:"braum", kr:"브라움"}, {en:"brand", kr:"브랜드"},
+  {en:"blitzcrank", kr:"블리츠크랭크"}, {en:"poppy", kr:"뽀삐"}, {en:"sylas", kr:"사일러스"},
+  {en:"shaco", kr:"샤코"}, {en:"senna", kr:"세나"}, {en:"seraphine", kr:"세라핀"},
+  {en:"sona", kr:"소나"}, {en:"soraka", kr:"소라카"}, {en:"shen", kr:"쉔"},
+  {en:"swain", kr:"스웨인"}, {en:"thresh", kr:"쓰레쉬"}, {en:"alistar", kr:"알리스타"},
+  {en:"yuumi", kr:"유미"}, {en:"zyra", kr:"자이라"}, {en:"zac", kr:"자크"},
+  {en:"janna", kr:"잔나"}, {en:"xerath", kr:"제라스"}, {en:"zoe", kr:"조이"},
+  {en:"zilean", kr:"질리언"}, {en:"karma", kr:"카르마"}, {en:"camille", kr:"카밀"},
+  {en:"taric", kr:"타릭"}, {en:"tahmkench", kr:"탐 켄치"}, {en:"pyke", kr:"파이크"},
+  {en:"pantheon", kr:"판테온"}, {en:"hwei", kr:"흐웨이"}
+];
+
+// 모든 챔피언 합치기 (중복 제거)
+const allChampions = [
+  ...topChampions,
+  ...jungleChampions,
+  ...midChampions,
+  ...adcChampions,
+  ...supportChampions
+];
+
+const uniqueMap = new Map();
+allChampions.forEach(ch => {
+  if(!uniqueMap.has(ch.en)) {
+    uniqueMap.set(ch.en, ch);
+  }
+});
+const uniqueAllChampions = Array.from(uniqueMap.values());
+
+// 역할군 이름들
+const roles = ["탑", "정글", "미드", "원딜", "서폿"];
+
+function getRandomChampion(champList) {
+  const randomIndex = Math.floor(Math.random() * champList.length);
+  return champList[randomIndex];
+}
+
+function getRandomRole(roles) {
+  const randomIndex = Math.floor(Math.random() * roles.length);
+  return roles[randomIndex];
+}
+
+const resultDiv = document.getElementById("result");
+
+document.getElementById("random-all").addEventListener("click", () => {
+  const randomRole = getRandomRole(roles);  // 역할군 랜덤
+  const champion = getRandomChampion(uniqueAllChampions); // 전체 챔피언 랜덤
+  resultDiv.textContent = `${randomRole} - ${champion.kr} (${champion.en})`;
+});
+
+document.getElementById("random-top").addEventListener("click", () => {
+  const champion = getRandomChampion(topChampions);
+  resultDiv.textContent = `탑 - ${champion.kr} (${champion.en})`;
+});
+
+document.getElementById("random-jungle").addEventListener("click", () => {
+  const champion = getRandomChampion(jungleChampions);
+  resultDiv.textContent = `정글 - ${champion.kr} (${champion.en})`;
+});
+
+document.getElementById("random-mid").addEventListener("click", () => {
+  const champion = getRandomChampion(midChampions);
+  resultDiv.textContent = `미드 - ${champion.kr} (${champion.en})`;
+});
+
+document.getElementById("random-adc").addEventListener("click", () => {
+  const champion = getRandomChampion(adcChampions);
+  resultDiv.textContent = `원딜 - ${champion.kr} (${champion.en})`;
+});
+
+document.getElementById("random-support").addEventListener("click", () => {
+  const champion = getRandomChampion(supportChampions);
+  resultDiv.textContent = `서폿 - ${champion.kr} (${champion.en})`;
+});
+</script>
+</body>
+</html>
