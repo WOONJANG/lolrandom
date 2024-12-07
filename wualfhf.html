@@ -102,12 +102,13 @@
 <body>
 <h1>롤 챔피언 랜덤 뽑기</h1>
 <div class="buttons">
-  <button id="random-all">전체 랜덤 뽑기</button>
-  <button id="random-top">탑 랜덤</button>
-  <button id="random-jungle">정글 랜덤</button>
-  <button id="random-mid">미드 랜덤</button>
-  <button id="random-adc">원딜 랜덤</button>
-  <button id="random-support">서폿 랜덤</button>
+  <button id="random-all">전체</button>
+  <button id="random-line">라인</button><br>
+  <button id="random-top">탑</button>
+  <button id="random-jungle">정글</button>
+  <button id="random-mid">미드</button>
+  <button id="random-adc">원딜</button>
+  <button id="random-support">서폿</button>
 </div>
 <div class="result" id="result"></div>
 
@@ -250,6 +251,11 @@ document.getElementById("random-all").addEventListener("click", () => {
   const randomRole = getRandomRole(roles);  // 역할군 랜덤
   const champion = getRandomChampion(uniqueAllChampions); // 전체 챔피언 랜덤
   resultDiv.textContent = `${randomRole} - ${champion.kr} (${champion.en})`;
+});
+
+document.getElementById("random-line").addEventListener("click", () => {
+  const randomRole = getRandomRole(roles);
+  resultDiv.textContent = `${randomRole}`;
 });
 
 document.getElementById("random-top").addEventListener("click", () => {
